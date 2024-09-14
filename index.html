@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Product List</h1>
+        <div>
+            <label for="category">Filter by category:</label>
+            <select id="category">
+                <option value="All">All</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Home">Home</option>
+            </select>
+
+            <label for="sort">Sort by price:</label>
+            <select id="sort">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+        </div>
+
+        <div id="product-list" class="product-list"></div>
+
+        <!-- <button id="load-more" class="load-more">Load More Products</button> -->
+    </div>
+
+    <!-- Всплывающее окно для деталей о продукте -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content animate__animated">
+            <span id="close-modal" class="close">&times;</span>
+            <div id="modal-product-details"></div>
+        </div>
+    </div>
+    </div>
+    <script type="module" src="./script.js"></script>
+</body>
+</html>
