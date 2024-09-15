@@ -50,41 +50,43 @@ h1 {
     margin: 5px 0;
 }
 
-/* .load-more {
-    display: block;
-    margin: 30px auto;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
+/* Стили для стикнутой кнопки */
+.performance-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 15px 20px;
+    background-color: #007BFF;
+    color: #fff;
     border: none;
-    cursor: pointer;
-    font-size: 16px;
     border-radius: 5px;
+    cursor: pointer;
 }
 
-.load-more:hover {
+.performance-button:hover {
     background-color: #0056b3;
-} */
+}
 
-/* Модальное окно */
+/* Стили для модального окна */
 .modal {
-    display: none;
+    display: none; /* Скрыто по умолчанию */
     position: fixed;
-    z-index: 100;
+    z-index: 999;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    overflow: auto; /* Включаем прокрутку, если содержимое больше высоты окна */
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
 }
 
 .modal-content {
-    background-color: white;
-    margin: 15% auto;
+    background-color: #fefefe;
+    margin: 5% auto; /* Отступ сверху и выравнивание по центру */
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
+    width: 80%; /* Ширина модального окна */
 }
 
 .close {
@@ -95,6 +97,15 @@ h1 {
     cursor: pointer;
 }
 
-.close:hover {
+.close:hover,
+.close:focus {
     color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Стили для контейнера с графиками */
+.performance-results {
+    max-height: 70vh;
+    overflow-y: auto;
 }

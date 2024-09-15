@@ -1,74 +1,92 @@
-import { filterAndSortProducts } from './modules/productFilter.js';
+import {
+    filterProductsInefficient,
+    filterProductsWithLoops,
+    filterProductsWithCachedLength,
+} from './modules/productFilter.js';
 import { displayProducts } from './modules/productDisplay.js';
-import { showProductDetails } from './modules/productDetails.js';
+import { renderAllPerformanceResults } from './modules/performanceDisplay.js';
+import { generateFakeProducts } from './modules/generateFakeProducts.js';
+import { measureFilterPerformance } from './modules/measureFilterPerfomance.js';
 
-// Функция для генерации массива из 1000 фейковых товаров
-function generateFakeProducts(quantity) {
-    const categories = ['Electronics', 'Clothing', 'Home'];
-    const products = [];
 
-    for (let i = 1; i <= quantity; i++) {
-        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-        const randomPrice = (Math.random() * 500 + 50).toFixed(2);
-        let imgUrl = '';
-        switch (randomCategory) {
-            case 'Clothing':
-                imgUrl = './images/Clothing.jpeg';
-                break;
-            case 'Home':
-                imgUrl = './images/Home.jpg';
-                break;
-            case 'Electronics':
-                imgUrl = './images/Electronics.jpg';
-                break;
-        }
-        products.push({
-            id: i,
-            name: `Product ${i}`,
-            price: randomPrice,
-            category: randomCategory,
-            imgUrl: imgUrl,
-            description: `This is a detailed description of Product ${i}. It belongs to the ${randomCategory} category and costs $${randomPrice}.`
-        });
-    }
-
-    return products;
-}
-
-let allProducts = generateFakeProducts(1000); // Генерация 1000 товаров
 const productListDiv = document.getElementById('product-list');
-
-// Всплывающее окно с деталями о товаре
-const modal = document.getElementById('product-modal');
-const modalProductDetails = document.getElementById('modal-product-details');
-const closeModalButton = document.getElementById('close-modal');
-
-closeModalButton.addEventListener('click', () => {
-    modal.style.display = 'none';
-});
-
-window.addEventListener('click', (event) => {
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-
-// Основная логика
 const categorySelect = document.getElementById('category');
 const sortSelect = document.getElementById('sort');
+const performanceModal = document.getElementById('performance-modal');
+const openPerformanceModalButton = document.getElementById('open-performance-modal');
+const closePerformanceModalButton = document.getElementById('close-performance-modal');
+let allProducts = generateFakeProducts(100000);
+let performanceResults = [];
+
+// добавим ненужную глобальную переменную, хранящую большой объём данных:
+// Поскольку она находится в глобальной области видимости и не используется, сборщик мусора не сможет её удалить, что увеличит потребление памяти.
+// window.largeData = generateFakeProducts(10000);
 
 // Обновление списка товаров при изменении фильтров
 function updateProductList() {
-    productListDiv.innerHTML = ''; // Очищаем список перед рендером
-
     const selectedCategory = categorySelect.value;
     const selectedSort = sortSelect.value;
-    const filteredAndSortedProducts = filterAndSortProducts(allProducts, selectedCategory, selectedSort);
-    displayProducts(filteredAndSortedProducts, productListDiv);
+
+    // Массив функций фильтрации и их имена
+    const filterFunctions = [
+        { func: filterProductsInefficient, name: 'Inefficient Filter' },
+        { func: filterProductsWithLoops, name: 'With Loops' },
+        { func: filterProductsWithCachedLength, name: 'With Cached Length' },
+    ];
+
+    // Очищаем результаты производительности
+    performanceResults = [];
+
+    filterFunctions.forEach(filterObj => {
+        // Измеряем производительность
+        const times = measureFilterPerformance(filterObj.func, allProducts, selectedCategory);
+        const averageTime = times.reduce((a, b) => a + b, 0) / times.length;
+
+        // Сохраняем результаты
+        performanceResults.push({
+            name: filterObj.name,
+            times,
+            averageTime,
+        });
+    });
+
+    // Фильтруем продукты с помощью одной из функций для отображения
+    const filteredProducts = selectedCategory === 'All' ?
+        allProducts :
+        filterFunctions[0].func(allProducts, selectedCategory);
+
+    // Сортировка
+    const sortedProducts = filteredProducts.sort((a, b) => {
+        return selectedSort === 'asc' ? a.price - b.price : b.price - a.price;
+    });
+
+    // Отображение продуктов
+    displayProducts(sortedProducts, productListDiv);
 }
 
 categorySelect.addEventListener('change', updateProductList);
 sortSelect.addEventListener('change', updateProductList);
 
+// Открытие модального окна
+openPerformanceModalButton.addEventListener('click', () => {
+    performanceModal.style.display = 'block';
+    renderAllPerformanceResults(performanceResults);
+});
+
+// Закрытие модального окна
+closePerformanceModalButton.addEventListener('click', () => {
+    performanceModal.style.display = 'none';
+});
+
+// Закрытие модального окна при клике вне его области
+window.addEventListener('click', (event) => {
+    if (event.target === performanceModal) {
+        performanceModal.style.display = 'none';
+    }
+});
+
+
 // Изначальная загрузка товаров
 updateProductList();
+
+
